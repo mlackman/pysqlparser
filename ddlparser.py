@@ -40,25 +40,29 @@ def p_column_definitions(p):
   if len(p) == 2:
     p[0] = (p[1])
   else:
-    p[0] = (p[1]), (p[3])
+    p[0] = p[1], p[3]
 
 def p_column_defintion_with_primary_key(p):
   """column_definition_with_primary_key : column_definition PRIMARY KEY
                                         | column_definition PRIMARY KEY COMMA column_definitions
   """
   if len(p) == 4:
-    p[0] = ('primary_key', p[1])
+    p[1]['primary_key'] = True
+    p[0] = p[1]
   else:
-    p[0] = ('primary_key', p[1]), p[5]
+    p[1]['primary_key'] = True
+    p[0] = p[1], p[5]
 
 
 def p_column_definition(p):
   """column_definition : IDENTIFIER data_type"""
-  p[0] = (('column_name', p[1]),p[2])
+  d = dict(column_name=p[1])
+  d.update(p[2])
+  p[0] = d
 
 def p_primary_key_definition(p):
   """primary_key_definition : PRIMARY KEY LPAREN IDENTIFIER RPAREN"""
-  p[0] = ('primary_key', p[4])
+  p[0] = dict(primary_key=p[4])
 
 def p_data_type(p):
   """data_type : type
@@ -67,11 +71,12 @@ def p_data_type(p):
   if len(p) == 2:
     p[0] = p[1]
   else:
-    p[0] = (p[1], ('length', p[3]))
+    p[1]['length'] = p[3]
+    p[0]=p[1]
 
 def p_type(p):
   """type : IDENTIFIER"""
-  p[0] = ('data_type', p[1])
+  p[0] = dict(type = p[1])
 
 def p_error(p):
   print(p)
