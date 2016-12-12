@@ -1,6 +1,6 @@
-from ply import yacc
+from pysqlparser.ply import yacc
+from pysqlparser import lexer
 import collections
-import lexer
 
 
 class Table(object):
@@ -20,6 +20,24 @@ class Table(object):
       self._columns.extend(column_or_columns)
     else:
       self._columns.append(column_or_columns)
+    # HAXOR
+    self._set_columns_with_primary_key_info(self._columns)
+
+  def _set_columns_with_primary_key_info(self, column_definitions):
+    primary_keys = []
+    for column_or_primary_key in column_definitions:
+      if isinstance(column_or_primary_key, str):
+        primary_key = column_or_primary_key
+        primary_keys.append(primary_key)
+
+    columns = list(filter(lambda column_or_primary_key: isinstance(column_or_primary_key, Column), column_definitions))
+    for primary_key in primary_keys:
+      for column in columns:
+        if column.name == primary_key:
+          column.is_primary_key = True
+
+    self._columns = columns
+
 
 
   def __str__(self):
@@ -41,7 +59,7 @@ class Column(object):
 
 
   def __str__(self):
-    return '[Column: {name} {data_type}, primary key: {is_primary_key}]'.format(**self.__dict__)
+    return '[Column: name: {name} type: {data_type}, primary key: {is_primary_key}]'.format(**self.__dict__)
 
 class DataType(object):
 
@@ -54,8 +72,6 @@ class DataType(object):
 
 
 tokens = lexer.tokens
-precedence = (
-)
 
 def p_table_definition(p):
   """table_definition : CREATE TABLE table_name LPAREN column_definitions RPAREN SEMICOLON
@@ -91,7 +107,9 @@ def p_column_definitions(p):
                         | column_definition_with_primary_key
                         | primary_key_definition
                         | column_definition COMMA column_definitions"""
-  if len(p) == 2:
+  if len(p) == 2 and isinstance(p[1], str): # primary_key_definition
+    p[0] = p[1]
+  elif len(p) == 2: # column_definition
     p[0] = p[1]
   else:
     if isinstance(p[3], collections.Iterable) and not isinstance(p[3], str):

@@ -1,4 +1,4 @@
-from ply import lex
+from pysqlparser.ply import lex
 
 
 tokens = [
