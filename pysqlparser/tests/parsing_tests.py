@@ -2,6 +2,8 @@ from collections import namedtuple
 from pysqlparser import ddlparser as parser
 from pysqlparser.ddlparser import Table
 
+def parse_single_statement(ddl_statement):
+  return parser.parse(ddl_statement)[0]
 
 ExpectedColumn = namedtuple('ExpectedColumn', 'name type length is_primary_key is_foreign_key references')
 
@@ -18,27 +20,27 @@ def assert_table(table, table_name, schema, column_count, columns):
     assert column.is_primary_key == expected_column.is_primary_key
 
 def test_parsing_1():
-  table = parser.parse('create TABLE jee (name char);')
+  table = parse_single_statement('create TABLE jee (name char);')
 
   assert_table(table, table_name='jee', schema=None, column_count=1, columns=(ExpectedColumn('name', 'char', None, False, False, None),))
 
 def test_parsing_2():
-  table = parser.parse('CREATE TABLE IF NOT EXISTS prh.jee (name char, age int, PRIMARY KEY(name));')
+  table = parse_single_statement('CREATE TABLE IF NOT EXISTS prh.jee (name char, age int, PRIMARY KEY(name));')
   assert_table(table, table_name='jee', schema='prh', column_count=2,
       columns=(ExpectedColumn('age', 'int', None, False, False, None), ExpectedColumn('name', 'char', None, True, False, None) ))
 
 def test_parsing_3():
-  table = parser.parse('CREATE TABLE IF NOT EXISTS prh.jee (name char, age int PRIMARY KEY);')
+  table = parse_single_statement('CREATE TABLE IF NOT EXISTS prh.jee (name char, age int PRIMARY KEY);')
   assert_table(table, table_name='jee', schema='prh', column_count=2,
       columns=(ExpectedColumn('age', 'int', None, True, False, None),ExpectedColumn('name', 'char', None, False, False, None)))
 
 def test_parsing_4():
-  table = parser.parse('CREATE TABLE IF NOT EXISTS prh.jee (name varchar(20) PRIMARY KEY, age int);')
+  table = parse_single_statement('CREATE TABLE IF NOT EXISTS prh.jee (name varchar(20) PRIMARY KEY, age int);')
   assert_table(table, table_name='jee', schema='prh', column_count=2,
       columns=(ExpectedColumn('age', 'int', None, False, False, None), ExpectedColumn('name', 'varchar', 20, True, False, None)))
 
 def test_parsing_foreign_key_1():
-  table = parser.parse("""
+  table = parse_single_statement("""
     CREATE TABLE IF NOT EXISTS prh.jee (name varchar(20) references prh.sometable (id));
   """)
   references = table.columns[0].references
@@ -49,7 +51,7 @@ def test_parsing_foreign_key_1():
   assert reference.columns[0] == 'id'
 
 def test_parsing_foreign_key_2():
-  table = parser.parse("""
+  table = parse_single_statement("""
     CREATE TABLE IF NOT EXISTS prh.jee (
       name varchar(20) references prh.sometable (id),
       postcode char
@@ -64,7 +66,7 @@ def test_parsing_foreign_key_2():
   assert len(table.columns) == 2
 
 def test_parsing_foreign_key_with_column_name_list():
-  table = parser.parse("""
+  table = parse_single_statement("""
     CREATE TABLE IF NOT EXISTS prh.jee (
       name varchar(20) references prh.sometable (id, od, ed)
     );
@@ -76,6 +78,12 @@ def test_parsing_foreign_key_with_column_name_list():
   assert len(reference.columns) == 3
   assert reference.columns == ['id', 'od', 'ed']
   assert len(table.columns) == 1
+
+def test_parsing_many_create_table_statements():
+  tables = parser.parse("""
+    CREATE TABLE jaa (id int);
+    CREATE TABLE joo (id char);""")
+  assert len(tables) == 2
 
 
 

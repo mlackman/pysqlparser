@@ -87,6 +87,15 @@ class Reference(object):
 
 tokens = lexer.tokens
 
+def p_table_definitions(p):
+  """table_definitions : table_definition
+                       | table_definition table_definitions"""
+  table_definitions = []
+  if len(p) > 2:
+    table_definitions.extend(p[2])
+  table_definitions.append(p[1])
+  p[0] = table_definitions
+
 def p_table_definition(p):
   """table_definition : CREATE TABLE table_name LPAREN column_definitions RPAREN SEMICOLON
                       | CREATE TABLE IF NOT EXISTS table_name LPAREN column_definitions RPAREN SEMICOLON"""

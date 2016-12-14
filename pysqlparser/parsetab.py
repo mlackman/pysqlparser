@@ -5,9 +5,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'DEE017E5354BAFF16A860A3BD65E19A1'
+_lr_signature = '0605F866AE7EC1B3F1FEF9EE4F438B35'
     
-_lr_action_items = {'REFERENCES':([18,19,20,39,],[27,-16,-18,-17,]),'SEMICOLON':([23,41,],[31,44,]),'TABLE':([1,],[3,]),'EXISTS':([10,],[17,]),'DOT':([5,6,],[9,-5,]),'CREATE':([0,],[1,]),'NUMBER':([28,],[35,]),'IDENTIFIER':([3,8,9,11,17,22,27,29,32,38,45,],[6,11,16,20,6,11,6,36,11,42,42,]),'PRIMARY':([8,18,19,20,22,32,39,],[12,25,-16,-18,12,12,-17,]),'NOT':([7,],[10,]),'IF':([3,],[7,]),'$end':([2,31,44,],[0,-1,-2,]),'LPAREN':([4,6,16,19,20,21,24,34,],[8,-3,-4,28,-18,29,32,38,]),'COMMA':([14,18,19,20,26,33,39,42,46,],[22,-9,-16,-18,-10,-11,-17,45,-13,]),'KEY':([12,25,],[21,33,]),'RPAREN':([13,14,15,18,19,20,26,30,33,35,36,37,39,40,42,43,46,47,],[-7,-6,23,-9,-16,-18,-10,-8,-11,39,40,41,-17,-12,-14,46,-13,-15,]),}
+_lr_action_items = {'EXISTS':([10,],[13,]),'$end':([2,3,5,29,44,],[0,-1,-2,-3,-4,]),'NOT':([6,],[10,]),'LPAREN':([7,9,14,20,23,24,26,38,],[-5,12,-6,27,30,31,-20,43,]),'KEY':([18,34,],[23,39,]),'CREATE':([0,3,29,44,],[1,1,-3,-4,]),'IF':([4,],[6,]),'RPAREN':([15,16,17,24,25,26,28,32,35,36,37,39,41,42,45,46,48,49,],[-9,-8,22,-18,-11,-20,-10,-12,40,41,42,-13,-14,-19,-16,48,-15,-17,]),'PRIMARY':([12,21,24,25,26,27,42,],[18,18,-18,34,-20,18,-19,]),'SEMICOLON':([22,40,],[29,44,]),'TABLE':([1,],[4,]),'COMMA':([16,24,25,26,32,39,42,45,48,],[21,-18,-11,-20,-12,-13,-19,47,-15,]),'REFERENCES':([24,25,26,42,],[-18,33,-20,-19,]),'DOT':([7,8,],[-7,11,]),'IDENTIFIER':([4,11,12,13,19,21,27,30,33,43,47,],[7,14,19,7,26,19,19,36,7,45,45,]),'NUMBER':([31,],[37,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -16,7 +16,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'table_name':([3,17,27,],[4,24,34,]),'type':([11,],[19,]),'reference_definition':([18,],[26,]),'primary_key_definition':([8,22,32,],[13,13,13,]),'column_name_list':([38,45,],[43,47,]),'data_type':([11,],[18,]),'table_definition':([0,],[2,]),'column_definition':([8,22,32,],[14,14,14,]),'column_definitions':([8,22,32,],[15,30,37,]),'schema':([3,17,27,],[5,5,5,]),}
+_lr_goto_items = {'primary_key_definition':([12,21,27,],[15,15,15,]),'type':([19,],[24,]),'column_definition':([12,21,27,],[16,16,16,]),'reference_definition':([25,],[32,]),'schema':([4,13,33,],[8,8,8,]),'table_definitions':([0,3,],[2,5,]),'data_type':([19,],[25,]),'column_definitions':([12,21,27,],[17,28,35,]),'table_definition':([0,3,],[3,3,]),'column_name_list':([43,47,],[46,49,]),'table_name':([4,13,33,],[9,20,38,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -25,23 +25,25 @@ for _k, _v in _lr_goto_items.items():
        _lr_goto[_x][_k] = _y
 del _lr_goto_items
 _lr_productions = [
-  ("S' -> table_definition","S'",1,None,None,None),
-  ('table_definition -> CREATE TABLE table_name LPAREN column_definitions RPAREN SEMICOLON','table_definition',7,'p_table_definition','ddlparser.py',91),
-  ('table_definition -> CREATE TABLE IF NOT EXISTS table_name LPAREN column_definitions RPAREN SEMICOLON','table_definition',10,'p_table_definition','ddlparser.py',92),
-  ('table_name -> IDENTIFIER','table_name',1,'p_table_name','ddlparser.py',104),
-  ('table_name -> schema DOT IDENTIFIER','table_name',3,'p_table_name','ddlparser.py',105),
-  ('schema -> IDENTIFIER','schema',1,'p_schema','ddlparser.py',116),
-  ('column_definitions -> column_definition','column_definitions',1,'p_column_definitions','ddlparser.py',120),
-  ('column_definitions -> primary_key_definition','column_definitions',1,'p_column_definitions','ddlparser.py',121),
-  ('column_definitions -> column_definition COMMA column_definitions','column_definitions',3,'p_column_definitions','ddlparser.py',122),
-  ('column_definition -> IDENTIFIER data_type','column_definition',2,'p_column_definition','ddlparser.py',135),
-  ('column_definition -> IDENTIFIER data_type reference_definition','column_definition',3,'p_column_definition','ddlparser.py',136),
-  ('column_definition -> IDENTIFIER data_type PRIMARY KEY','column_definition',4,'p_column_definition','ddlparser.py',137),
-  ('primary_key_definition -> PRIMARY KEY LPAREN IDENTIFIER RPAREN','primary_key_definition',5,'p_primary_key_definition','ddlparser.py',148),
-  ('reference_definition -> REFERENCES table_name LPAREN column_name_list RPAREN','reference_definition',5,'p_reference_definition','ddlparser.py',152),
-  ('column_name_list -> IDENTIFIER','column_name_list',1,'p_column_name_list','ddlparser.py',157),
-  ('column_name_list -> IDENTIFIER COMMA column_name_list','column_name_list',3,'p_column_name_list','ddlparser.py',158),
-  ('data_type -> type','data_type',1,'p_data_type','ddlparser.py',169),
-  ('data_type -> type LPAREN NUMBER RPAREN','data_type',4,'p_data_type','ddlparser.py',170),
-  ('type -> IDENTIFIER','type',1,'p_type','ddlparser.py',178),
+  ("S' -> table_definitions","S'",1,None,None,None),
+  ('table_definitions -> table_definition','table_definitions',1,'p_table_definitions','ddlparser.py',91),
+  ('table_definitions -> table_definition table_definitions','table_definitions',2,'p_table_definitions','ddlparser.py',92),
+  ('table_definition -> CREATE TABLE table_name LPAREN column_definitions RPAREN SEMICOLON','table_definition',7,'p_table_definition','ddlparser.py',100),
+  ('table_definition -> CREATE TABLE IF NOT EXISTS table_name LPAREN column_definitions RPAREN SEMICOLON','table_definition',10,'p_table_definition','ddlparser.py',101),
+  ('table_name -> IDENTIFIER','table_name',1,'p_table_name','ddlparser.py',113),
+  ('table_name -> schema DOT IDENTIFIER','table_name',3,'p_table_name','ddlparser.py',114),
+  ('schema -> IDENTIFIER','schema',1,'p_schema','ddlparser.py',125),
+  ('column_definitions -> column_definition','column_definitions',1,'p_column_definitions','ddlparser.py',129),
+  ('column_definitions -> primary_key_definition','column_definitions',1,'p_column_definitions','ddlparser.py',130),
+  ('column_definitions -> column_definition COMMA column_definitions','column_definitions',3,'p_column_definitions','ddlparser.py',131),
+  ('column_definition -> IDENTIFIER data_type','column_definition',2,'p_column_definition','ddlparser.py',144),
+  ('column_definition -> IDENTIFIER data_type reference_definition','column_definition',3,'p_column_definition','ddlparser.py',145),
+  ('column_definition -> IDENTIFIER data_type PRIMARY KEY','column_definition',4,'p_column_definition','ddlparser.py',146),
+  ('primary_key_definition -> PRIMARY KEY LPAREN IDENTIFIER RPAREN','primary_key_definition',5,'p_primary_key_definition','ddlparser.py',157),
+  ('reference_definition -> REFERENCES table_name LPAREN column_name_list RPAREN','reference_definition',5,'p_reference_definition','ddlparser.py',161),
+  ('column_name_list -> IDENTIFIER','column_name_list',1,'p_column_name_list','ddlparser.py',166),
+  ('column_name_list -> IDENTIFIER COMMA column_name_list','column_name_list',3,'p_column_name_list','ddlparser.py',167),
+  ('data_type -> type','data_type',1,'p_data_type','ddlparser.py',178),
+  ('data_type -> type LPAREN NUMBER RPAREN','data_type',4,'p_data_type','ddlparser.py',179),
+  ('type -> IDENTIFIER','type',1,'p_type','ddlparser.py',187),
 ]
