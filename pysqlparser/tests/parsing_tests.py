@@ -55,7 +55,7 @@ def test_parsing_foreign_key_2():
       postcode char
     );
   """)
-  references = table.columns[0].references
+  references = table.columns[1].references
   assert len(references) == 1
   reference = references[0]
   assert reference.table_name == 'prh.sometable'
