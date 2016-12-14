@@ -25,6 +25,7 @@ reserved = {
   'exists':'EXISTS',
   'primary':'PRIMARY',
   'key':'KEY',
+  'references':'REFERENCES',
 }
 
 

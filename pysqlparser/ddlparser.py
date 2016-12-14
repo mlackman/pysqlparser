@@ -14,6 +14,13 @@ class Table(object):
   def columns(self):
     return self._columns
 
+  @property
+  def fullname(self):
+    if self.schema:
+      return "{schema}.{table_name}".format(schema=self.schema, table_name=self.name)
+    else:
+      return self.name
+
   @columns.setter
   def columns(self,column_or_columns):
     if isinstance(column_or_columns, collections.Iterable):
@@ -22,6 +29,9 @@ class Table(object):
       self._columns.append(column_or_columns)
     # HAXOR
     self._set_columns_with_primary_key_info(self._columns)
+
+  def add_column(self, name, data_type, is_primary_key=None, references=None):
+    self._columns.append(Column(name, is_primary_key, data_type, references))
 
   def _set_columns_with_primary_key_info(self, column_definitions):
     primary_keys = []
@@ -38,8 +48,6 @@ class Table(object):
 
     self._columns = columns
 
-
-
   def __str__(self):
     columns_str = ', '.join([str(column) for column in self._columns])
     d = self.__dict__
@@ -49,13 +57,13 @@ class Table(object):
     else:
       return 'table: {name} columns: {columns_str}'.format(**d)
 
-
 class Column(object):
 
-  def __init__(self, name=None, is_primary_key=None, data_type=None):
+  def __init__(self, name=None, is_primary_key=None, data_type=None, references=None):
     self.name = name
     self.data_type = data_type
     self.is_primary_key = is_primary_key or False
+    self.references = references or []
 
 
   def __str__(self):
@@ -69,6 +77,12 @@ class DataType(object):
 
   def __str__(self):
     return '{type}, length: {length}'.format(**self.__dict__)
+
+class Reference(object):
+
+  def __init__(self, table_name, columns):
+    self.table_name = table_name
+    self.columns = columns
 
 
 tokens = lexer.tokens
@@ -105,6 +119,8 @@ def p_schema(p):
 def p_column_definitions(p):
   """column_definitions : column_definition
                         | column_definition_with_primary_key
+                        | column_definition reference_definition
+                        | column_definition reference_definition COMMA column_definitions
                         | primary_key_definition
                         | column_definition COMMA column_definitions"""
   if len(p) == 2 and isinstance(p[1], str): # primary_key_definition
@@ -112,12 +128,16 @@ def p_column_definitions(p):
   elif len(p) == 2: # column_definition
     p[0] = p[1]
   else:
-    if isinstance(p[3], collections.Iterable) and not isinstance(p[3], str):
+    if isinstance(p[2], Reference):
+      column = p[1]
+      column.references.append(p[2])
+      p[0] = column
+
+    elif isinstance(p[3], collections.Iterable) and not isinstance(p[3], str):
       p[3].append(p[1])
       p[0] = p[3]
     else:
       p[0] = [p[3],p[1]]
-
 
 def p_column_defintion_with_primary_key(p):
   """column_definition_with_primary_key : column_definition PRIMARY KEY
@@ -139,6 +159,12 @@ def p_column_definition(p):
 def p_primary_key_definition(p):
   """primary_key_definition : PRIMARY KEY LPAREN IDENTIFIER RPAREN"""
   p[0] = p[4]
+
+def p_reference_definition(p):
+  """reference_definition : REFERENCES table_name LPAREN IDENTIFIER RPAREN"""
+  table = p[2]
+  p[0] = Reference(table_name=table.fullname, columns=[p[4]])
+
 
 def p_data_type(p):
   """data_type : type
