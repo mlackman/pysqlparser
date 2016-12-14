@@ -149,9 +149,20 @@ def p_primary_key_definition(p):
   p[0] = p[4]
 
 def p_reference_definition(p):
-  """reference_definition : REFERENCES table_name LPAREN IDENTIFIER RPAREN"""
+  """reference_definition : REFERENCES table_name LPAREN column_name_list RPAREN"""
   table = p[2]
-  p[0] = Reference(table_name=table.fullname, columns=[p[4]])
+  p[0] = Reference(table_name=table.fullname, columns=p[4])
+
+def p_column_name_list(p):
+  """column_name_list : IDENTIFIER
+                      | IDENTIFIER COMMA column_name_list
+  """
+  column_names = [p[1]]
+  if len(p) > 2:
+    column_names.extend(p[3])
+  p[0] = column_names
+
+
 
 
 def p_data_type(p):

@@ -63,3 +63,20 @@ def test_parsing_foreign_key_2():
   assert reference.columns[0] == 'id'
   assert len(table.columns) == 2
 
+def test_parsing_foreign_key_with_column_name_list():
+  table = parser.parse("""
+    CREATE TABLE IF NOT EXISTS prh.jee (
+      name varchar(20) references prh.sometable (id, od, ed)
+    );
+  """)
+  references = table.columns[0].references
+  assert len(references) == 1
+  reference = references[0]
+  assert reference.table_name == 'prh.sometable'
+  assert len(reference.columns) == 3
+  assert reference.columns == ['id', 'od', 'ed']
+  assert len(table.columns) == 1
+
+
+
+

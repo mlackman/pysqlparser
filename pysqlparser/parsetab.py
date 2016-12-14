@@ -5,9 +5,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'E6D8B61000CC2641C6A78961DA28E93C'
+_lr_signature = 'DEE017E5354BAFF16A860A3BD65E19A1'
     
-_lr_action_items = {'IF':([3,],[4,]),'DOT':([6,7,],[-5,10,]),'RPAREN':([12,13,14,22,23,24,27,32,33,34,35,36,39,40,43,44,],[19,-7,-6,-16,-14,-9,-8,-10,38,39,40,-11,-12,-15,44,-13,]),'EXISTS':([8,],[11,]),'COMMA':([14,22,23,24,32,36,40,44,],[20,-16,-14,-9,-10,-11,-15,-13,]),'KEY':([15,30,],[21,36,]),'NOT':([4,],[8,]),'NUMBER':([29,],[35,]),'SEMICOLON':([19,38,],[26,42,]),'TABLE':([1,],[3,]),'PRIMARY':([9,20,22,23,24,25,40,],[15,15,-16,-14,30,15,-15,]),'CREATE':([0,],[1,]),'REFERENCES':([22,23,24,40,],[-16,-14,31,-15,]),'$end':([2,26,42,],[0,-1,-2,]),'IDENTIFIER':([3,9,10,11,16,20,25,28,31,41,],[6,16,17,6,22,16,16,34,6,43,]),'LPAREN':([5,6,17,18,21,22,23,37,],[9,-3,-4,25,28,-16,29,41,]),}
+_lr_action_items = {'REFERENCES':([18,19,20,39,],[27,-16,-18,-17,]),'SEMICOLON':([23,41,],[31,44,]),'TABLE':([1,],[3,]),'EXISTS':([10,],[17,]),'DOT':([5,6,],[9,-5,]),'CREATE':([0,],[1,]),'NUMBER':([28,],[35,]),'IDENTIFIER':([3,8,9,11,17,22,27,29,32,38,45,],[6,11,16,20,6,11,6,36,11,42,42,]),'PRIMARY':([8,18,19,20,22,32,39,],[12,25,-16,-18,12,12,-17,]),'NOT':([7,],[10,]),'IF':([3,],[7,]),'$end':([2,31,44,],[0,-1,-2,]),'LPAREN':([4,6,16,19,20,21,24,34,],[8,-3,-4,28,-18,29,32,38,]),'COMMA':([14,18,19,20,26,33,39,42,46,],[22,-9,-16,-18,-10,-11,-17,45,-13,]),'KEY':([12,25,],[21,33,]),'RPAREN':([13,14,15,18,19,20,26,30,33,35,36,37,39,40,42,43,46,47,],[-7,-6,23,-9,-16,-18,-10,-8,-11,39,40,41,-17,-12,-14,46,-13,-15,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -16,7 +16,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'column_definition':([9,20,25,],[14,14,14,]),'table_name':([3,11,31,],[5,18,37,]),'schema':([3,11,31,],[7,7,7,]),'column_definitions':([9,20,25,],[12,27,33,]),'primary_key_definition':([9,20,25,],[13,13,13,]),'reference_definition':([24,],[32,]),'table_definition':([0,],[2,]),'type':([16,],[23,]),'data_type':([16,],[24,]),}
+_lr_goto_items = {'table_name':([3,17,27,],[4,24,34,]),'type':([11,],[19,]),'reference_definition':([18,],[26,]),'primary_key_definition':([8,22,32,],[13,13,13,]),'column_name_list':([38,45,],[43,47,]),'data_type':([11,],[18,]),'table_definition':([0,],[2,]),'column_definition':([8,22,32,],[14,14,14,]),'column_definitions':([8,22,32,],[15,30,37,]),'schema':([3,17,27,],[5,5,5,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -38,8 +38,10 @@ _lr_productions = [
   ('column_definition -> IDENTIFIER data_type reference_definition','column_definition',3,'p_column_definition','ddlparser.py',136),
   ('column_definition -> IDENTIFIER data_type PRIMARY KEY','column_definition',4,'p_column_definition','ddlparser.py',137),
   ('primary_key_definition -> PRIMARY KEY LPAREN IDENTIFIER RPAREN','primary_key_definition',5,'p_primary_key_definition','ddlparser.py',148),
-  ('reference_definition -> REFERENCES table_name LPAREN IDENTIFIER RPAREN','reference_definition',5,'p_reference_definition','ddlparser.py',152),
-  ('data_type -> type','data_type',1,'p_data_type','ddlparser.py',158),
-  ('data_type -> type LPAREN NUMBER RPAREN','data_type',4,'p_data_type','ddlparser.py',159),
-  ('type -> IDENTIFIER','type',1,'p_type','ddlparser.py',167),
+  ('reference_definition -> REFERENCES table_name LPAREN column_name_list RPAREN','reference_definition',5,'p_reference_definition','ddlparser.py',152),
+  ('column_name_list -> IDENTIFIER','column_name_list',1,'p_column_name_list','ddlparser.py',157),
+  ('column_name_list -> IDENTIFIER COMMA column_name_list','column_name_list',3,'p_column_name_list','ddlparser.py',158),
+  ('data_type -> type','data_type',1,'p_data_type','ddlparser.py',169),
+  ('data_type -> type LPAREN NUMBER RPAREN','data_type',4,'p_data_type','ddlparser.py',170),
+  ('type -> IDENTIFIER','type',1,'p_type','ddlparser.py',178),
 ]
