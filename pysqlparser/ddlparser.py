@@ -118,9 +118,6 @@ def p_schema(p):
 
 def p_column_definitions(p):
   """column_definitions : column_definition
-                        | column_definition_with_primary_key
-                        | column_definition reference_definition
-                        | column_definition reference_definition COMMA column_definitions
                         | primary_key_definition
                         | column_definition COMMA column_definitions"""
   if len(p) == 2 and isinstance(p[1], str): # primary_key_definition
@@ -128,32 +125,23 @@ def p_column_definitions(p):
   elif len(p) == 2: # column_definition
     p[0] = p[1]
   else:
-    if isinstance(p[2], Reference):
-      column = p[1]
-      column.references.append(p[2])
-      p[0] = column
-
-    elif isinstance(p[3], collections.Iterable) and not isinstance(p[3], str):
+    if isinstance(p[3], collections.Iterable) and not isinstance(p[3], str):
       p[3].append(p[1])
       p[0] = p[3]
     else:
       p[0] = [p[3],p[1]]
 
-def p_column_defintion_with_primary_key(p):
-  """column_definition_with_primary_key : column_definition PRIMARY KEY
-                                        | column_definition PRIMARY KEY COMMA column_definitions
-  """
-  column = p[1]
-  column.is_primary_key = True
-  if len(p) == 4:
-    p[0] = column
-  else:
-    p[0] = [column, p[5]]
-
-
 def p_column_definition(p):
-  """column_definition : IDENTIFIER data_type"""
+  """column_definition : IDENTIFIER data_type
+                       | IDENTIFIER data_type reference_definition
+                       | IDENTIFIER data_type PRIMARY KEY
+  """
   column = Column(name=p[1], data_type=p[2])
+  if len(p) >= 4:
+    if isinstance(p[3], Reference):
+      column.references.append(p[3])
+    else:
+      column.is_primary_key = True
   p[0] = column
 
 def p_primary_key_definition(p):

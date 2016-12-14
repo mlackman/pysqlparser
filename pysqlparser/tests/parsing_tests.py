@@ -30,12 +30,12 @@ def test_parsing_2():
 def test_parsing_3():
   table = parser.parse('CREATE TABLE IF NOT EXISTS prh.jee (name char, age int PRIMARY KEY);')
   assert_table(table, table_name='jee', schema='prh', column_count=2,
-      columns=(ExpectedColumn('age', 'int', None, True, False, None), ExpectedColumn('name', 'char', None, False, False, None)))
+      columns=(ExpectedColumn('age', 'int', None, True, False, None),ExpectedColumn('name', 'char', None, False, False, None)))
 
 def test_parsing_4():
   table = parser.parse('CREATE TABLE IF NOT EXISTS prh.jee (name varchar(20) PRIMARY KEY, age int);')
   assert_table(table, table_name='jee', schema='prh', column_count=2,
-      columns=(ExpectedColumn('name', 'varchar', 20, True, False, None), ExpectedColumn('age', 'int', None, False, False, None)))
+      columns=(ExpectedColumn('age', 'int', None, False, False, None), ExpectedColumn('name', 'varchar', 20, True, False, None)))
 
 def test_parsing_foreign_key_1():
   table = parser.parse("""
