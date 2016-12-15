@@ -94,7 +94,7 @@ class DataType(object):
     self.length = length
 
   def __str__(self):
-    return '{type}, length: {length}'.format(**self.__dict__)
+    return self.type if self.length == None else self.type + '(' + str(self.length) + ')'
 
 class Reference(object):
 

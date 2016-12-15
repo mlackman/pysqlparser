@@ -124,6 +124,16 @@ def test_ddl_with_line_comment():
   assert_table(table, table_name='jee', schema='prh', column_count=2,
       columns=(ExpectedColumn('age', 'int', None, True, False, None),ExpectedColumn('name', 'char', None, False, False, None)))
 
+def test_parsing_column_name_inside_quote():
+  table = parse_single_statement("""
+    CREATE TABLE IF NOT EXISTS prh.jee(
+      "name" char, -- comment
+      age int PRIMARY KEY # other comment
+    );
+    """)
+  assert_table(table, table_name='jee', schema='prh', column_count=2,
+      columns=(ExpectedColumn('age', 'int', None, True, False, None),ExpectedColumn('name', 'char', None, False, False, None)))
+
 
 
 
