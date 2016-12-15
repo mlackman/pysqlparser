@@ -1,5 +1,9 @@
 Created by PLY version 3.10 (http://www.dabeaz.com/ply)
 
+Unused terminals:
+
+    COMMENT
+
 Grammar
 
 Rule 0     S' -> table_definitions
@@ -30,6 +34,7 @@ Rule 23    type -> IDENTIFIER
 Terminals, with rules where they appear
 
 COMMA                : 11 20
+COMMENT              : 
 CREATE               : 3 4
 DOT                  : 6
 EXISTS               : 4
@@ -72,10 +77,10 @@ state 0
     (3) table_definition -> . CREATE TABLE table_name LPAREN column_definitions RPAREN SEMICOLON
     (4) table_definition -> . CREATE TABLE IF NOT EXISTS table_name LPAREN column_definitions RPAREN SEMICOLON
 
-    CREATE          shift and go to state 2
+    CREATE          shift and go to state 3
 
+    table_definitions              shift and go to state 2
     table_definition               shift and go to state 1
-    table_definitions              shift and go to state 3
 
 state 1
 
@@ -87,23 +92,23 @@ state 1
     (4) table_definition -> . CREATE TABLE IF NOT EXISTS table_name LPAREN column_definitions RPAREN SEMICOLON
 
     $end            reduce using rule 1 (table_definitions -> table_definition .)
-    CREATE          shift and go to state 2
+    CREATE          shift and go to state 3
 
-    table_definition               shift and go to state 1
     table_definitions              shift and go to state 4
+    table_definition               shift and go to state 1
 
 state 2
+
+    (0) S' -> table_definitions .
+
+
+
+state 3
 
     (3) table_definition -> CREATE . TABLE table_name LPAREN column_definitions RPAREN SEMICOLON
     (4) table_definition -> CREATE . TABLE IF NOT EXISTS table_name LPAREN column_definitions RPAREN SEMICOLON
 
     TABLE           shift and go to state 5
-
-
-state 3
-
-    (0) S' -> table_definitions .
-
 
 
 state 4
@@ -122,10 +127,10 @@ state 5
     (7) schema -> . IDENTIFIER
 
     IF              shift and go to state 8
-    IDENTIFIER      shift and go to state 9
+    IDENTIFIER      shift and go to state 7
 
-    table_name                     shift and go to state 7
     schema                         shift and go to state 6
+    table_name                     shift and go to state 9
 
 state 6
 
@@ -136,20 +141,6 @@ state 6
 
 state 7
 
-    (3) table_definition -> CREATE TABLE table_name . LPAREN column_definitions RPAREN SEMICOLON
-
-    LPAREN          shift and go to state 11
-
-
-state 8
-
-    (4) table_definition -> CREATE TABLE IF . NOT EXISTS table_name LPAREN column_definitions RPAREN SEMICOLON
-
-    NOT             shift and go to state 12
-
-
-state 9
-
     (5) table_name -> IDENTIFIER .
     (7) schema -> IDENTIFIER .
 
@@ -157,6 +148,20 @@ state 9
     COMMA           reduce using rule 5 (table_name -> IDENTIFIER .)
     RPAREN          reduce using rule 5 (table_name -> IDENTIFIER .)
     DOT             reduce using rule 7 (schema -> IDENTIFIER .)
+
+
+state 8
+
+    (4) table_definition -> CREATE TABLE IF . NOT EXISTS table_name LPAREN column_definitions RPAREN SEMICOLON
+
+    NOT             shift and go to state 11
+
+
+state 9
+
+    (3) table_definition -> CREATE TABLE table_name . LPAREN column_definitions RPAREN SEMICOLON
+
+    LPAREN          shift and go to state 12
 
 
 state 10
@@ -167,6 +172,13 @@ state 10
 
 
 state 11
+
+    (4) table_definition -> CREATE TABLE IF NOT . EXISTS table_name LPAREN column_definitions RPAREN SEMICOLON
+
+    EXISTS          shift and go to state 14
+
+
+state 12
 
     (3) table_definition -> CREATE TABLE table_name LPAREN . column_definitions RPAREN SEMICOLON
     (8) column_definitions -> . column_definition
@@ -179,21 +191,14 @@ state 11
     (15) primary_key_definition -> . PRIMARY KEY LPAREN IDENTIFIER RPAREN
     (18) foreign_key_definition -> . FOREIGN KEY LPAREN IDENTIFIER RPAREN reference_definition
 
-    IDENTIFIER      shift and go to state 19
-    PRIMARY         shift and go to state 14
-    FOREIGN         shift and go to state 16
+    IDENTIFIER      shift and go to state 17
+    PRIMARY         shift and go to state 15
+    FOREIGN         shift and go to state 21
 
-    column_definition              shift and go to state 15
-    foreign_key_definition         shift and go to state 18
-    primary_key_definition         shift and go to state 20
-    column_definitions             shift and go to state 17
-
-state 12
-
-    (4) table_definition -> CREATE TABLE IF NOT . EXISTS table_name LPAREN column_definitions RPAREN SEMICOLON
-
-    EXISTS          shift and go to state 21
-
+    column_definition              shift and go to state 20
+    foreign_key_definition         shift and go to state 16
+    column_definitions             shift and go to state 18
+    primary_key_definition         shift and go to state 19
 
 state 13
 
@@ -206,42 +211,31 @@ state 13
 
 state 14
 
-    (15) primary_key_definition -> PRIMARY . KEY LPAREN IDENTIFIER RPAREN
+    (4) table_definition -> CREATE TABLE IF NOT EXISTS . table_name LPAREN column_definitions RPAREN SEMICOLON
+    (5) table_name -> . IDENTIFIER
+    (6) table_name -> . schema DOT IDENTIFIER
+    (7) schema -> . IDENTIFIER
 
-    KEY             shift and go to state 22
+    IDENTIFIER      shift and go to state 7
 
+    schema                         shift and go to state 6
+    table_name                     shift and go to state 22
 
 state 15
 
-    (8) column_definitions -> column_definition .
-    (11) column_definitions -> column_definition . COMMA column_definitions
+    (15) primary_key_definition -> PRIMARY . KEY LPAREN IDENTIFIER RPAREN
 
-    RPAREN          reduce using rule 8 (column_definitions -> column_definition .)
-    COMMA           shift and go to state 23
+    KEY             shift and go to state 23
 
 
 state 16
-
-    (18) foreign_key_definition -> FOREIGN . KEY LPAREN IDENTIFIER RPAREN reference_definition
-
-    KEY             shift and go to state 24
-
-
-state 17
-
-    (3) table_definition -> CREATE TABLE table_name LPAREN column_definitions . RPAREN SEMICOLON
-
-    RPAREN          shift and go to state 25
-
-
-state 18
 
     (10) column_definitions -> foreign_key_definition .
 
     RPAREN          reduce using rule 10 (column_definitions -> foreign_key_definition .)
 
 
-state 19
+state 17
 
     (12) column_definition -> IDENTIFIER . data_type
     (13) column_definition -> IDENTIFIER . data_type reference_definition
@@ -250,38 +244,101 @@ state 19
     (22) data_type -> . type LPAREN NUMBER RPAREN
     (23) type -> . IDENTIFIER
 
-    IDENTIFIER      shift and go to state 28
+    IDENTIFIER      shift and go to state 24
 
     type                           shift and go to state 26
-    data_type                      shift and go to state 27
+    data_type                      shift and go to state 25
 
-state 20
+state 18
+
+    (3) table_definition -> CREATE TABLE table_name LPAREN column_definitions . RPAREN SEMICOLON
+
+    RPAREN          shift and go to state 27
+
+
+state 19
 
     (9) column_definitions -> primary_key_definition .
 
     RPAREN          reduce using rule 9 (column_definitions -> primary_key_definition .)
 
 
+state 20
+
+    (8) column_definitions -> column_definition .
+    (11) column_definitions -> column_definition . COMMA column_definitions
+
+    RPAREN          reduce using rule 8 (column_definitions -> column_definition .)
+    COMMA           shift and go to state 28
+
+
 state 21
 
-    (4) table_definition -> CREATE TABLE IF NOT EXISTS . table_name LPAREN column_definitions RPAREN SEMICOLON
-    (5) table_name -> . IDENTIFIER
-    (6) table_name -> . schema DOT IDENTIFIER
-    (7) schema -> . IDENTIFIER
+    (18) foreign_key_definition -> FOREIGN . KEY LPAREN IDENTIFIER RPAREN reference_definition
 
-    IDENTIFIER      shift and go to state 9
+    KEY             shift and go to state 29
 
-    table_name                     shift and go to state 29
-    schema                         shift and go to state 6
 
 state 22
 
-    (15) primary_key_definition -> PRIMARY KEY . LPAREN IDENTIFIER RPAREN
+    (4) table_definition -> CREATE TABLE IF NOT EXISTS table_name . LPAREN column_definitions RPAREN SEMICOLON
 
     LPAREN          shift and go to state 30
 
 
 state 23
+
+    (15) primary_key_definition -> PRIMARY KEY . LPAREN IDENTIFIER RPAREN
+
+    LPAREN          shift and go to state 31
+
+
+state 24
+
+    (23) type -> IDENTIFIER .
+
+    LPAREN          reduce using rule 23 (type -> IDENTIFIER .)
+    PRIMARY         reduce using rule 23 (type -> IDENTIFIER .)
+    REFERENCES      reduce using rule 23 (type -> IDENTIFIER .)
+    COMMA           reduce using rule 23 (type -> IDENTIFIER .)
+    RPAREN          reduce using rule 23 (type -> IDENTIFIER .)
+
+
+state 25
+
+    (12) column_definition -> IDENTIFIER data_type .
+    (13) column_definition -> IDENTIFIER data_type . reference_definition
+    (14) column_definition -> IDENTIFIER data_type . PRIMARY KEY
+    (16) reference_definition -> . REFERENCES table_name LPAREN column_name_list RPAREN
+    (17) reference_definition -> . REFERENCES table_name
+
+    COMMA           reduce using rule 12 (column_definition -> IDENTIFIER data_type .)
+    RPAREN          reduce using rule 12 (column_definition -> IDENTIFIER data_type .)
+    PRIMARY         shift and go to state 32
+    REFERENCES      shift and go to state 33
+
+    reference_definition           shift and go to state 34
+
+state 26
+
+    (21) data_type -> type .
+    (22) data_type -> type . LPAREN NUMBER RPAREN
+
+    PRIMARY         reduce using rule 21 (data_type -> type .)
+    REFERENCES      reduce using rule 21 (data_type -> type .)
+    COMMA           reduce using rule 21 (data_type -> type .)
+    RPAREN          reduce using rule 21 (data_type -> type .)
+    LPAREN          shift and go to state 35
+
+
+state 27
+
+    (3) table_definition -> CREATE TABLE table_name LPAREN column_definitions RPAREN . SEMICOLON
+
+    SEMICOLON       shift and go to state 36
+
+
+state 28
 
     (11) column_definitions -> column_definition COMMA . column_definitions
     (8) column_definitions -> . column_definition
@@ -294,139 +351,23 @@ state 23
     (15) primary_key_definition -> . PRIMARY KEY LPAREN IDENTIFIER RPAREN
     (18) foreign_key_definition -> . FOREIGN KEY LPAREN IDENTIFIER RPAREN reference_definition
 
-    IDENTIFIER      shift and go to state 19
-    PRIMARY         shift and go to state 14
-    FOREIGN         shift and go to state 16
+    IDENTIFIER      shift and go to state 17
+    PRIMARY         shift and go to state 15
+    FOREIGN         shift and go to state 21
 
-    column_definition              shift and go to state 15
-    foreign_key_definition         shift and go to state 18
-    primary_key_definition         shift and go to state 20
-    column_definitions             shift and go to state 31
-
-state 24
-
-    (18) foreign_key_definition -> FOREIGN KEY . LPAREN IDENTIFIER RPAREN reference_definition
-
-    LPAREN          shift and go to state 32
-
-
-state 25
-
-    (3) table_definition -> CREATE TABLE table_name LPAREN column_definitions RPAREN . SEMICOLON
-
-    SEMICOLON       shift and go to state 33
-
-
-state 26
-
-    (21) data_type -> type .
-    (22) data_type -> type . LPAREN NUMBER RPAREN
-
-    PRIMARY         reduce using rule 21 (data_type -> type .)
-    REFERENCES      reduce using rule 21 (data_type -> type .)
-    COMMA           reduce using rule 21 (data_type -> type .)
-    RPAREN          reduce using rule 21 (data_type -> type .)
-    LPAREN          shift and go to state 34
-
-
-state 27
-
-    (12) column_definition -> IDENTIFIER data_type .
-    (13) column_definition -> IDENTIFIER data_type . reference_definition
-    (14) column_definition -> IDENTIFIER data_type . PRIMARY KEY
-    (16) reference_definition -> . REFERENCES table_name LPAREN column_name_list RPAREN
-    (17) reference_definition -> . REFERENCES table_name
-
-    COMMA           reduce using rule 12 (column_definition -> IDENTIFIER data_type .)
-    RPAREN          reduce using rule 12 (column_definition -> IDENTIFIER data_type .)
-    PRIMARY         shift and go to state 35
-    REFERENCES      shift and go to state 36
-
-    reference_definition           shift and go to state 37
-
-state 28
-
-    (23) type -> IDENTIFIER .
-
-    LPAREN          reduce using rule 23 (type -> IDENTIFIER .)
-    PRIMARY         reduce using rule 23 (type -> IDENTIFIER .)
-    REFERENCES      reduce using rule 23 (type -> IDENTIFIER .)
-    COMMA           reduce using rule 23 (type -> IDENTIFIER .)
-    RPAREN          reduce using rule 23 (type -> IDENTIFIER .)
-
+    column_definitions             shift and go to state 37
+    foreign_key_definition         shift and go to state 16
+    column_definition              shift and go to state 20
+    primary_key_definition         shift and go to state 19
 
 state 29
 
-    (4) table_definition -> CREATE TABLE IF NOT EXISTS table_name . LPAREN column_definitions RPAREN SEMICOLON
+    (18) foreign_key_definition -> FOREIGN KEY . LPAREN IDENTIFIER RPAREN reference_definition
 
     LPAREN          shift and go to state 38
 
 
 state 30
-
-    (15) primary_key_definition -> PRIMARY KEY LPAREN . IDENTIFIER RPAREN
-
-    IDENTIFIER      shift and go to state 39
-
-
-state 31
-
-    (11) column_definitions -> column_definition COMMA column_definitions .
-
-    RPAREN          reduce using rule 11 (column_definitions -> column_definition COMMA column_definitions .)
-
-
-state 32
-
-    (18) foreign_key_definition -> FOREIGN KEY LPAREN . IDENTIFIER RPAREN reference_definition
-
-    IDENTIFIER      shift and go to state 40
-
-
-state 33
-
-    (3) table_definition -> CREATE TABLE table_name LPAREN column_definitions RPAREN SEMICOLON .
-
-    CREATE          reduce using rule 3 (table_definition -> CREATE TABLE table_name LPAREN column_definitions RPAREN SEMICOLON .)
-    $end            reduce using rule 3 (table_definition -> CREATE TABLE table_name LPAREN column_definitions RPAREN SEMICOLON .)
-
-
-state 34
-
-    (22) data_type -> type LPAREN . NUMBER RPAREN
-
-    NUMBER          shift and go to state 41
-
-
-state 35
-
-    (14) column_definition -> IDENTIFIER data_type PRIMARY . KEY
-
-    KEY             shift and go to state 42
-
-
-state 36
-
-    (16) reference_definition -> REFERENCES . table_name LPAREN column_name_list RPAREN
-    (17) reference_definition -> REFERENCES . table_name
-    (5) table_name -> . IDENTIFIER
-    (6) table_name -> . schema DOT IDENTIFIER
-    (7) schema -> . IDENTIFIER
-
-    IDENTIFIER      shift and go to state 9
-
-    table_name                     shift and go to state 43
-    schema                         shift and go to state 6
-
-state 37
-
-    (13) column_definition -> IDENTIFIER data_type reference_definition .
-
-    COMMA           reduce using rule 13 (column_definition -> IDENTIFIER data_type reference_definition .)
-    RPAREN          reduce using rule 13 (column_definition -> IDENTIFIER data_type reference_definition .)
-
-
-state 38
 
     (4) table_definition -> CREATE TABLE IF NOT EXISTS table_name LPAREN . column_definitions RPAREN SEMICOLON
     (8) column_definitions -> . column_definition
@@ -439,37 +380,94 @@ state 38
     (15) primary_key_definition -> . PRIMARY KEY LPAREN IDENTIFIER RPAREN
     (18) foreign_key_definition -> . FOREIGN KEY LPAREN IDENTIFIER RPAREN reference_definition
 
-    IDENTIFIER      shift and go to state 19
-    PRIMARY         shift and go to state 14
-    FOREIGN         shift and go to state 16
+    IDENTIFIER      shift and go to state 17
+    PRIMARY         shift and go to state 15
+    FOREIGN         shift and go to state 21
 
-    column_definition              shift and go to state 15
-    foreign_key_definition         shift and go to state 18
-    primary_key_definition         shift and go to state 20
-    column_definitions             shift and go to state 44
+    column_definition              shift and go to state 20
+    foreign_key_definition         shift and go to state 16
+    column_definitions             shift and go to state 39
+    primary_key_definition         shift and go to state 19
+
+state 31
+
+    (15) primary_key_definition -> PRIMARY KEY LPAREN . IDENTIFIER RPAREN
+
+    IDENTIFIER      shift and go to state 40
+
+
+state 32
+
+    (14) column_definition -> IDENTIFIER data_type PRIMARY . KEY
+
+    KEY             shift and go to state 41
+
+
+state 33
+
+    (16) reference_definition -> REFERENCES . table_name LPAREN column_name_list RPAREN
+    (17) reference_definition -> REFERENCES . table_name
+    (5) table_name -> . IDENTIFIER
+    (6) table_name -> . schema DOT IDENTIFIER
+    (7) schema -> . IDENTIFIER
+
+    IDENTIFIER      shift and go to state 7
+
+    schema                         shift and go to state 6
+    table_name                     shift and go to state 42
+
+state 34
+
+    (13) column_definition -> IDENTIFIER data_type reference_definition .
+
+    COMMA           reduce using rule 13 (column_definition -> IDENTIFIER data_type reference_definition .)
+    RPAREN          reduce using rule 13 (column_definition -> IDENTIFIER data_type reference_definition .)
+
+
+state 35
+
+    (22) data_type -> type LPAREN . NUMBER RPAREN
+
+    NUMBER          shift and go to state 43
+
+
+state 36
+
+    (3) table_definition -> CREATE TABLE table_name LPAREN column_definitions RPAREN SEMICOLON .
+
+    CREATE          reduce using rule 3 (table_definition -> CREATE TABLE table_name LPAREN column_definitions RPAREN SEMICOLON .)
+    $end            reduce using rule 3 (table_definition -> CREATE TABLE table_name LPAREN column_definitions RPAREN SEMICOLON .)
+
+
+state 37
+
+    (11) column_definitions -> column_definition COMMA column_definitions .
+
+    RPAREN          reduce using rule 11 (column_definitions -> column_definition COMMA column_definitions .)
+
+
+state 38
+
+    (18) foreign_key_definition -> FOREIGN KEY LPAREN . IDENTIFIER RPAREN reference_definition
+
+    IDENTIFIER      shift and go to state 44
+
 
 state 39
 
-    (15) primary_key_definition -> PRIMARY KEY LPAREN IDENTIFIER . RPAREN
+    (4) table_definition -> CREATE TABLE IF NOT EXISTS table_name LPAREN column_definitions . RPAREN SEMICOLON
 
     RPAREN          shift and go to state 45
 
 
 state 40
 
-    (18) foreign_key_definition -> FOREIGN KEY LPAREN IDENTIFIER . RPAREN reference_definition
+    (15) primary_key_definition -> PRIMARY KEY LPAREN IDENTIFIER . RPAREN
 
     RPAREN          shift and go to state 46
 
 
 state 41
-
-    (22) data_type -> type LPAREN NUMBER . RPAREN
-
-    RPAREN          shift and go to state 47
-
-
-state 42
 
     (14) column_definition -> IDENTIFIER data_type PRIMARY KEY .
 
@@ -477,51 +475,45 @@ state 42
     RPAREN          reduce using rule 14 (column_definition -> IDENTIFIER data_type PRIMARY KEY .)
 
 
-state 43
+state 42
 
     (16) reference_definition -> REFERENCES table_name . LPAREN column_name_list RPAREN
     (17) reference_definition -> REFERENCES table_name .
 
-    LPAREN          shift and go to state 48
-    RPAREN          reduce using rule 17 (reference_definition -> REFERENCES table_name .)
+    LPAREN          shift and go to state 47
     COMMA           reduce using rule 17 (reference_definition -> REFERENCES table_name .)
+    RPAREN          reduce using rule 17 (reference_definition -> REFERENCES table_name .)
+
+
+state 43
+
+    (22) data_type -> type LPAREN NUMBER . RPAREN
+
+    RPAREN          shift and go to state 48
 
 
 state 44
 
-    (4) table_definition -> CREATE TABLE IF NOT EXISTS table_name LPAREN column_definitions . RPAREN SEMICOLON
+    (18) foreign_key_definition -> FOREIGN KEY LPAREN IDENTIFIER . RPAREN reference_definition
 
     RPAREN          shift and go to state 49
 
 
 state 45
 
+    (4) table_definition -> CREATE TABLE IF NOT EXISTS table_name LPAREN column_definitions RPAREN . SEMICOLON
+
+    SEMICOLON       shift and go to state 50
+
+
+state 46
+
     (15) primary_key_definition -> PRIMARY KEY LPAREN IDENTIFIER RPAREN .
 
     RPAREN          reduce using rule 15 (primary_key_definition -> PRIMARY KEY LPAREN IDENTIFIER RPAREN .)
 
 
-state 46
-
-    (18) foreign_key_definition -> FOREIGN KEY LPAREN IDENTIFIER RPAREN . reference_definition
-    (16) reference_definition -> . REFERENCES table_name LPAREN column_name_list RPAREN
-    (17) reference_definition -> . REFERENCES table_name
-
-    REFERENCES      shift and go to state 36
-
-    reference_definition           shift and go to state 50
-
 state 47
-
-    (22) data_type -> type LPAREN NUMBER RPAREN .
-
-    PRIMARY         reduce using rule 22 (data_type -> type LPAREN NUMBER RPAREN .)
-    REFERENCES      reduce using rule 22 (data_type -> type LPAREN NUMBER RPAREN .)
-    COMMA           reduce using rule 22 (data_type -> type LPAREN NUMBER RPAREN .)
-    RPAREN          reduce using rule 22 (data_type -> type LPAREN NUMBER RPAREN .)
-
-
-state 48
 
     (16) reference_definition -> REFERENCES table_name LPAREN . column_name_list RPAREN
     (19) column_name_list -> . IDENTIFIER
@@ -531,18 +523,32 @@ state 48
 
     column_name_list               shift and go to state 51
 
+state 48
+
+    (22) data_type -> type LPAREN NUMBER RPAREN .
+
+    PRIMARY         reduce using rule 22 (data_type -> type LPAREN NUMBER RPAREN .)
+    REFERENCES      reduce using rule 22 (data_type -> type LPAREN NUMBER RPAREN .)
+    COMMA           reduce using rule 22 (data_type -> type LPAREN NUMBER RPAREN .)
+    RPAREN          reduce using rule 22 (data_type -> type LPAREN NUMBER RPAREN .)
+
+
 state 49
 
-    (4) table_definition -> CREATE TABLE IF NOT EXISTS table_name LPAREN column_definitions RPAREN . SEMICOLON
+    (18) foreign_key_definition -> FOREIGN KEY LPAREN IDENTIFIER RPAREN . reference_definition
+    (16) reference_definition -> . REFERENCES table_name LPAREN column_name_list RPAREN
+    (17) reference_definition -> . REFERENCES table_name
 
-    SEMICOLON       shift and go to state 53
+    REFERENCES      shift and go to state 33
 
+    reference_definition           shift and go to state 53
 
 state 50
 
-    (18) foreign_key_definition -> FOREIGN KEY LPAREN IDENTIFIER RPAREN reference_definition .
+    (4) table_definition -> CREATE TABLE IF NOT EXISTS table_name LPAREN column_definitions RPAREN SEMICOLON .
 
-    RPAREN          reduce using rule 18 (foreign_key_definition -> FOREIGN KEY LPAREN IDENTIFIER RPAREN reference_definition .)
+    CREATE          reduce using rule 4 (table_definition -> CREATE TABLE IF NOT EXISTS table_name LPAREN column_definitions RPAREN SEMICOLON .)
+    $end            reduce using rule 4 (table_definition -> CREATE TABLE IF NOT EXISTS table_name LPAREN column_definitions RPAREN SEMICOLON .)
 
 
 state 51
@@ -563,18 +569,17 @@ state 52
 
 state 53
 
-    (4) table_definition -> CREATE TABLE IF NOT EXISTS table_name LPAREN column_definitions RPAREN SEMICOLON .
+    (18) foreign_key_definition -> FOREIGN KEY LPAREN IDENTIFIER RPAREN reference_definition .
 
-    CREATE          reduce using rule 4 (table_definition -> CREATE TABLE IF NOT EXISTS table_name LPAREN column_definitions RPAREN SEMICOLON .)
-    $end            reduce using rule 4 (table_definition -> CREATE TABLE IF NOT EXISTS table_name LPAREN column_definitions RPAREN SEMICOLON .)
+    RPAREN          reduce using rule 18 (foreign_key_definition -> FOREIGN KEY LPAREN IDENTIFIER RPAREN reference_definition .)
 
 
 state 54
 
     (16) reference_definition -> REFERENCES table_name LPAREN column_name_list RPAREN .
 
-    RPAREN          reduce using rule 16 (reference_definition -> REFERENCES table_name LPAREN column_name_list RPAREN .)
     COMMA           reduce using rule 16 (reference_definition -> REFERENCES table_name LPAREN column_name_list RPAREN .)
+    RPAREN          reduce using rule 16 (reference_definition -> REFERENCES table_name LPAREN column_name_list RPAREN .)
 
 
 state 55

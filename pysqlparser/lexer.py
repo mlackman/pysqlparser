@@ -9,6 +9,7 @@ tokens = [
   'SEMICOLON',
   'NUMBER',
   'COMMA',
+  'COMMENT',
 ]
 
 t_DOT           = r'\.'
@@ -38,6 +39,10 @@ def t_error(t):
   t.lexer.skip(1)
 
 t_ignore  = ' \t\n'
+
+def t_COMMENT(t):
+  r'(/\*.*\*/)|(\#.*)|(--.*)' # ignore /* jee */
+  pass
 
 def t_NUMBER(t):
   r'\d+'

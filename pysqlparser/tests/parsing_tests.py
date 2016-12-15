@@ -109,6 +109,24 @@ def test_parsing_foreign_key_with_referencing_1():
   assert reference.columns == []
   assert len(table.columns) == 1
 
+def test_ddl_with_inline_comment():
+  table = parse_single_statement('CREATE TABLE IF NOT EXISTS prh.jee (name char /*name*/, age int PRIMARY KEY);')
+  assert_table(table, table_name='jee', schema='prh', column_count=2,
+      columns=(ExpectedColumn('age', 'int', None, True, False, None),ExpectedColumn('name', 'char', None, False, False, None)))
+
+def test_ddl_with_line_comment():
+  table = parse_single_statement("""
+    CREATE TABLE IF NOT EXISTS prh.jee(
+      name char, -- comment
+      age int PRIMARY KEY # other comment
+    );
+    """)
+  assert_table(table, table_name='jee', schema='prh', column_count=2,
+      columns=(ExpectedColumn('age', 'int', None, True, False, None),ExpectedColumn('name', 'char', None, False, False, None)))
+
+
+
+
 def test_parsing_many_create_table_statements():
   tables = parser.parse("""
     CREATE TABLE jaa (id int);
