@@ -26,6 +26,7 @@ reserved = {
   'primary':'PRIMARY',
   'key':'KEY',
   'references':'REFERENCES',
+  'foreign':'FOREIGN'
 }
 
 

@@ -79,11 +79,42 @@ def test_parsing_foreign_key_with_column_name_list():
   assert reference.columns == ['id', 'od', 'ed']
   assert len(table.columns) == 1
 
+def test_parsing_foreign_key_with_referencing():
+  table = parse_single_statement("""
+    CREATE TABLE IF NOT EXISTS prh.jee (
+      id int,
+      foreign key(id) references prh.sometable(id)
+    );
+  """)
+  references = table.columns[0].references
+  assert len(references) == 1
+  reference = references[0]
+  assert reference.table_name == 'prh.sometable'
+  assert len(reference.columns) == 1
+  assert reference.columns == ['id']
+  assert len(table.columns) == 1
+
+def test_parsing_foreign_key_with_referencing_1():
+  table = parse_single_statement("""
+    CREATE TABLE IF NOT EXISTS prh.jee (
+      id int,
+      foreign key(id) references prh.sometable
+    );
+  """)
+  references = table.columns[0].references
+  assert len(references) == 1
+  reference = references[0]
+  assert reference.table_name == 'prh.sometable'
+  assert len(reference.columns) == 0
+  assert reference.columns == []
+  assert len(table.columns) == 1
+
 def test_parsing_many_create_table_statements():
   tables = parser.parse("""
     CREATE TABLE jaa (id int);
     CREATE TABLE joo (id char);""")
   assert len(tables) == 2
+
 
 
 

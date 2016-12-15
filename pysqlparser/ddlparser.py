@@ -35,18 +35,33 @@ class Table(object):
 
   def _set_columns_with_primary_key_info(self, column_definitions):
     primary_keys = []
-    for column_or_primary_key in column_definitions:
-      if isinstance(column_or_primary_key, str):
-        primary_key = column_or_primary_key
-        primary_keys.append(primary_key)
+    foreign_keys = []
+    self._columns, primary_keys, foreign_keys = self._filter_columns_primary_keys_and_foreign_keys(column_definitions)
 
-    columns = list(filter(lambda column_or_primary_key: isinstance(column_or_primary_key, Column), column_definitions))
+    self._update_primary_key_info_to_columns(primary_keys)
+    self._update_foreign_key_info_to_columns(foreign_keys)
+
+
+  def _filter_columns_primary_keys_and_foreign_keys(self, column_definitions):
+    columns =      filter(lambda col_def: not self._is_primary_or_foreign_key(col_def), column_definitions)
+    primary_keys = filter(lambda col_def: isinstance(col_def, PrimaryKey), column_definitions)
+    foreign_keys = filter(lambda col_def: isinstance(col_def, ForeignKey), column_definitions)
+    return list(columns), primary_keys, foreign_keys
+
+  def _is_primary_or_foreign_key(self, column_definition):
+    return isinstance(column_definition, PrimaryKey) or isinstance(column_definition, ForeignKey)
+
+  def _update_primary_key_info_to_columns(self, primary_keys):
     for primary_key in primary_keys:
-      for column in columns:
-        if column.name == primary_key:
+      for column in self._columns:
+        if column.name == primary_key.column_name:
           column.is_primary_key = True
 
-    self._columns = columns
+  def _update_foreign_key_info_to_columns(self, foreign_keys):
+    for foreign_key in foreign_keys:
+      for column in self._columns:
+        if column.name == foreign_key.column_name:
+          column.references.append(foreign_key.reference)
 
   def __str__(self):
     columns_str = ', '.join([str(column) for column in self._columns])
@@ -65,9 +80,12 @@ class Column(object):
     self.is_primary_key = is_primary_key or False
     self.references = references or []
 
-
   def __str__(self):
-    return '[Column: name: {name} type: {data_type}, primary key: {is_primary_key}]'.format(**self.__dict__)
+    return '[Column: name: {name} type: {data_type}, primary key: {is_primary_key}, is_foreign_key: {is_foreign_key}]'.format(**self.__dict__)
+
+  @property
+  def is_foreign_key(self):
+    return self.references != []
 
 class DataType(object):
 
@@ -84,6 +102,17 @@ class Reference(object):
     self.table_name = table_name
     self.columns = columns
 
+class PrimaryKey(object):
+  """Helper class to parse bnf"""
+
+  def __init__(self, name):
+    self.column_name = name
+
+class ForeignKey(object):
+
+  def __init__(self, column_name, reference):
+    self.column_name = column_name
+    self.reference = reference
 
 tokens = lexer.tokens
 
@@ -128,8 +157,9 @@ def p_schema(p):
 def p_column_definitions(p):
   """column_definitions : column_definition
                         | primary_key_definition
+                        | foreign_key_definition
                         | column_definition COMMA column_definitions"""
-  if len(p) == 2 and isinstance(p[1], str): # primary_key_definition
+  if isinstance(p[1], PrimaryKey) or isinstance(p[1], ForeignKey):
     p[0] = p[1]
   elif len(p) == 2: # column_definition
     p[0] = p[1]
@@ -155,12 +185,19 @@ def p_column_definition(p):
 
 def p_primary_key_definition(p):
   """primary_key_definition : PRIMARY KEY LPAREN IDENTIFIER RPAREN"""
-  p[0] = p[4]
+  p[0] = PrimaryKey(p[4])
 
 def p_reference_definition(p):
-  """reference_definition : REFERENCES table_name LPAREN column_name_list RPAREN"""
+  """reference_definition : REFERENCES table_name LPAREN column_name_list RPAREN
+                          | REFERENCES table_name"""
   table = p[2]
-  p[0] = Reference(table_name=table.fullname, columns=p[4])
+  columns = [] if len(p) == 3 else p[4]
+  p[0] = Reference(table.fullname, columns)
+
+def p_foreign_key_definition(p):
+  """foreign_key_definition : FOREIGN KEY LPAREN IDENTIFIER RPAREN reference_definition"""
+  foreign_key = ForeignKey(p[4], p[6])
+  p[0] = foreign_key
 
 def p_column_name_list(p):
   """column_name_list : IDENTIFIER
@@ -170,9 +207,6 @@ def p_column_name_list(p):
   if len(p) > 2:
     column_names.extend(p[3])
   p[0] = column_names
-
-
-
 
 def p_data_type(p):
   """data_type : type
